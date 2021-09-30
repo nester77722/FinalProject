@@ -1,7 +1,9 @@
 ﻿    using AutoMapper;
 using BLL.Models;
 using DAL.Entities;
+using DAL.Entities.Order;
 using PL.ViewModels;
+using PL.ViewModels.Order;
 
 namespace PL
 {
@@ -23,6 +25,18 @@ namespace PL
 
             CreateMap<ProductImage, ProductImageModel>();
             CreateMap<ProductImageModel, ProductImageViewModel>();
+
+            CreateMap<Order, OrderModel>();
+            CreateMap<OrderModel, OrderViewModel>();
+
+            CreateMap<OrderItem, OrderItemModel>();
+            CreateMap<OrderItemModel, OrderItemViewModel>();
+
+            CreateMap<OrderResponse, OrderResponseModel>();
+            CreateMap<OrderResponseModel, OrderResponseViewModel>();
+
+            CreateMap<Stock, StockModel>();
+            CreateMap<StockModel, StockViewModel>();
         }
     }
 }

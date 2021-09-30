@@ -48,6 +48,9 @@ namespace PL
             services.AddScoped<IProductImageRepository, ProductImageRepository>();
             services.AddScoped<IProductImageService, ProductImageService>();
 
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderService, OrderService>();
+
             services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddCors();

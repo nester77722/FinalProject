@@ -8,5 +8,6 @@ namespace PL.ViewModels
         public string Address { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
+        public ICollection<StockViewModel> Stocks { get; set; }
     }
 }
