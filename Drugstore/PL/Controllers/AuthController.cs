@@ -1,40 +1,33 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using BLL.Interfaces;
-using PL.ViewModels;
-using BLL.Models;
-using PL.Configuration;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using PL.Models;
-using DAL.Interfaces;
+using System.Threading.Tasks;
 using DAL.Entities;
+using DAL.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using PL.Configuration;
+using PL.Models;
 
-namespace ProductApp.Controllers
+namespace JwtAuthSampleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly JwtBearerTokenSettings _jwtBearerTokenSettings;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly JwtBearerTokenSettings jwtBearerTokenSettings;
+        private readonly UserManager<IdentityUser> userManager;
         private readonly IUserRepository _repository;
 
         public AuthController(IOptions<JwtBearerTokenSettings> jwtTokenOptions, UserManager<IdentityUser> userManager, IUserRepository repository)
         {
-            _jwtBearerTokenSettings = jwtTokenOptions.Value;
-            _userManager = userManager;
+            this.jwtBearerTokenSettings = jwtTokenOptions.Value;
+            this.userManager = userManager;
             _repository = repository;
         }
 
@@ -48,8 +41,8 @@ namespace ProductApp.Controllers
             }
 
             var identityUser = new IdentityUser() { UserName = userDetails.UserName, Email = userDetails.Email };
-            var result = await _userManager.CreateAsync(identityUser, userDetails.Password);
-            await _userManager.AddToRoleAsync(identityUser, "Guest");
+            var result = await userManager.CreateAsync(identityUser, userDetails.Password);
+
             if (!result.Succeeded)
             {
                 var dictionary = new ModelStateDictionary();
@@ -78,13 +71,14 @@ namespace ProductApp.Controllers
             }
 
             var token = GenerateToken(identityUser);
+
             return Ok(
                 new UserModelWithTokens
                 {
                     AccessToken = token.AccessToken,
                     RefreshToken = token.RefreshToken,
                     UserName = identityUser.UserName,
-                    Roles = await _userManager.GetRolesAsync(identityUser),
+                    Roles = await userManager.GetRolesAsync(identityUser),
                     Id = Guid.NewGuid().ToString()
                 });
         }
@@ -96,12 +90,27 @@ namespace ProductApp.Controllers
             return Ok(new { Token = "", Message = "Logged Out" });
         }
 
+        [HttpPost]
+        [Route("refreshtoken")]
+        public AccessAndRefreshToken RefreshToken(UserModelWithTokens userModel)
+        {
+            var refresh = userModel.RefreshToken;
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(refresh);
+
+            var userId = jwtSecurityToken.Claims.First(claim => claim.Type == "nameid").Value;
+            var user = _repository.FindById(userId);
+
+            var token = GenerateToken(user);
+
+            return token;
+        }
         private async Task<IdentityUser> ValidateUser(LoginCredentials credentials)
         {
-            var identityUser = await _userManager.FindByNameAsync(credentials.Username);
+            var identityUser = await userManager.FindByNameAsync(credentials.Username);
             if (identityUser != null)
             {
-                var result = _userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash, credentials.Password);
+                var result = userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash, credentials.Password);
                 return result == PasswordVerificationResult.Failed ? null : identityUser;
             }
 
@@ -112,7 +121,7 @@ namespace ProductApp.Controllers
         private AccessAndRefreshToken GenerateToken(IdentityUser identityUser)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtBearerTokenSettings.SecretKey);
+            var key = Encoding.ASCII.GetBytes(jwtBearerTokenSettings.SecretKey);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -124,10 +133,10 @@ namespace ProductApp.Controllers
 
                 }),
 
-                Expires = DateTime.UtcNow.AddSeconds(_jwtBearerTokenSettings.ExpiryTimeInSeconds),
+                Expires = DateTime.UtcNow.AddSeconds(jwtBearerTokenSettings.ExpiryTimeInSeconds),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Audience = _jwtBearerTokenSettings.Audience,
-                Issuer = _jwtBearerTokenSettings.Issuer
+                Audience = jwtBearerTokenSettings.Audience,
+                Issuer = jwtBearerTokenSettings.Issuer
             };
 
             var refreshTokenDescriptor = new SecurityTokenDescriptor
@@ -137,7 +146,7 @@ namespace ProductApp.Controllers
                     new Claim(ClaimTypes.NameIdentifier, identityUser.Id),
                 }),
 
-                Expires = DateTime.UtcNow.AddHours(_jwtBearerTokenSettings.RefreshTokenExpiryTimeHours),
+                Expires = DateTime.UtcNow.AddHours(jwtBearerTokenSettings.RefreshTokenExpiryTimeHours),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -158,5 +167,7 @@ namespace ProductApp.Controllers
                 RefreshToken = refreshTokenValue
             };
         }
+
+
     }
 }
