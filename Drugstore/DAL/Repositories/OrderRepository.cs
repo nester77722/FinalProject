@@ -18,6 +18,12 @@ namespace DAL.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<Order> AddOrderAsync(Order order)
+        {
+            var response = await _dbContext.AddAsync(order);
+            return response.Entity;
+        }
+
         public async Task<Order> GetOrderByIdAsync(int id)
         {
             return await _dbContext.Orders.FindAsync(id);
@@ -35,6 +41,13 @@ namespace DAL.Repositories
                 TotalOrders = await orders.CountAsync(),
                 Orders = await orders.Skip(page * pageSize).Take(pageSize).ToListAsync()
             };
+        }
+
+        public async Task<ICollection<OrderItem>> GetOrderItems(int orderId)
+        {
+            return await _dbContext.OrderItems
+                .AsNoTracking()
+                .Where(orderItem => orderItem.OrderId == orderId).ToListAsync();
         }
     }
 }

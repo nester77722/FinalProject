@@ -11,5 +11,7 @@ namespace DAL.Interfaces
     {
         Task<OrderResponse> GetOrdersAsync(int page, int pageSize, string userName);
         Task<Order> GetOrderByIdAsync(int id);
+        Task<Order> AddOrderAsync(Order order);
+        Task<ICollection<OrderItem>> GetOrderItems(int orderId);
     }
 }

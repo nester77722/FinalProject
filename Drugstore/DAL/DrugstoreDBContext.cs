@@ -17,6 +17,9 @@ namespace DAL
         {
             modelBuilder.ApplyConfiguration(new StoreConfig());
             modelBuilder.ApplyConfiguration(new OrderConfig());
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oI => oI.Order)
+                .WithMany(o => o.OrderItems);
 
             base.OnModelCreating(modelBuilder);
         }
