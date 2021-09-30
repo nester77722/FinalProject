@@ -29,6 +29,12 @@ namespace BLL.Services
         public async Task<StoreResponseModel> GetStoresAsync(int page, int pageSize)
         {
             var stores = await _storeRepository.GetStoresAsync(page, pageSize);
+
+            foreach(var store in stores.Stores)
+            {
+                store.Stocks = await _storeRepository.GetStockByStoreIdAsync(store.Id);
+            }
+
             return _mapper.Map<StoreResponseModel>(stores);
         }
     }

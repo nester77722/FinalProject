@@ -11,5 +11,6 @@ namespace BLL.Interfaces
     {
         Task<OrderResponseModel> GetOrdersAsync(int page, int pageSize, string userName);
         Task<OrderModel> GetOrderAsync(int id);
+        Task<OrderModel> AddOrderAsync(OrderModel order);
     }
 }
