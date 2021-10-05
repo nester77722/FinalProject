@@ -1,0 +1,32 @@
+.products{
+    font-family:Georgia, 'Times New Roman', Times, serif;
+    font-weight: 501;
+    display: flex;
+    flex-flow: row wrap;
+    row-gap: 20px;
+    column-gap: 20px;
+    flex: 1;
+}
+
+.products:nth-of-type(3) {
+    flex: 2;
+}
+
+.product{
+    width: 200px;
+    height: 200px;
+}
+
+.add-to-cart-buttons{
+    border: 1px solid rgb(36, 32, 32);
+    font-size: 16px;
+    text-align: center;
+    background-color: white;
+}
+
+.add-to-cart-buttons:hover{
+    border-radius: 5px;
+    background-color: rgb(36, 32, 32);
+    color:rgb(255, 253, 235);
+    transition: background-color .6s;
+}

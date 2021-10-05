@@ -9,7 +9,6 @@ namespace PL.ViewModels.Order
     public class OrderViewModel
     {
         public string UserName { get; set; }
-        public IdentityUser User { get; set; }
         public DateTime DateTime { get; set; }
         public ICollection<OrderItemViewModel> OrderItems { get; set; }
     }

@@ -28,9 +28,10 @@ namespace PL.Controllers
         }
 
         [HttpGet]
-        public async Task<ProductResponseViewModel> GetProductsAsync(int page = 1, int pageSize = 3)
+        [Route("all-products")]
+        public async Task<ProductResponseViewModel> GetProductsAsync(int page = 1, int pageSize = 3, Sortings sorting = Sortings.SortByName)
         {
-            var responseModel = await _productService.GetProductsAsync(page - 1, pageSize);
+            var responseModel = await _productService.GetProductsAsync(page - 1, pageSize, sorting);
             return _mapper.Map<ProductResponseViewModel>(responseModel);
         }
 
@@ -52,19 +53,11 @@ namespace PL.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
+        [Route("get-specific-product")]
         public async Task<ProductViewModel> GetProductByIdAsync(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
             return _mapper.Map<ProductViewModel>(product);
         }
-
-        //[HttpGet]
-        //[Route("{stocks/storeId}")]
-        //public async Task<StockViewModel> GetStocksByStoreId(int storeId)
-        //{
-        //    var stocks = await _productService.GetStocksByStoreIdAsync(storeId);
-        //    return _mapper.Map<StockViewModel>(stocks);
-        //}
     }
 }

@@ -127,9 +127,9 @@ namespace JwtAuthSampleAPI.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, identityUser.UserName.ToString()),
+                    new Claim(ClaimTypes.Name, identityUser.UserName),
                     new Claim(ClaimTypes.Email, identityUser.Email),
-                    new Claim(ClaimTypes.NameIdentifier, identityUser.Id),
+                    new Claim(ClaimTypes.NameIdentifier, identityUser.Id)
 
                 }),
 

@@ -1,0 +1,21 @@
+.pagination{
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.buttons{
+    align-self: flex-end;
+    border-radius: 5px;
+    border: 1px solid rgb(36, 32, 32);
+    margin: 0 0.5px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.buttons:hover{
+    border-radius: 5px;
+    background-color: rgb(36, 32, 32);
+    color:rgb(255, 253, 235);
+    transition: background-color .3s;
+}
