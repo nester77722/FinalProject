@@ -6,8 +6,16 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            Logger logger = new Logger();
+            Logger logger = Logger.GetLogger();
+
             logger.AddLog("TestLog");
+            Console.WriteLine(logger.Logs);
+
+            Logger newLogger = Logger.GetLogger();
+            Console.WriteLine(newLogger.Logs);
+
+            newLogger.AddLog("NewLoggerLog");
+
             Console.WriteLine(logger.Logs);
         }
     }
